@@ -39,13 +39,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'botty.Bot'
-        )
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
- }
+bootJar {
+    launchScript()
+}
