@@ -1,55 +1,37 @@
 package botty;
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import discord4j.core.DiscordClientBuilder;
+import botty.components.DiscordClientComponent;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.PresenceUpdateEvent;
-import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 
 @Component
 public class Bot {
 	
-	@Value("${token}")
-	private String token;
+	@Autowired
+	private DiscordClientComponent clientComponent;
+	
+	@Autowired
+	private Map<String, BotSkill> botSkills;
 
 	@PostConstruct
 	public void start() {
-		GatewayDiscordClient client = DiscordClientBuilder.create(token)
-				.build()
-				.login()
-				.block();
-
-
-		client.getEventDispatcher().on(ReadyEvent.class)
-		.subscribe(event -> {
-			User self = event.getSelf();
-			System.out.println(String.format("Logged in as %s#%s", self.getUsername(), self.getDiscriminator()));
-		});
+		
+		GatewayDiscordClient client = clientComponent.getClient();
 
 		client.on(PresenceUpdateEvent.class).subscribe(event -> {
 			System.out.println(event);
 		});
 
-		client.on(MessageCreateEvent.class).subscribe(event -> {
-			if(event.getMember().isPresent() && event.getMember().get().isBot()) {
-				return;
-			}
-			
-			final Message message = event.getMessage();
-			if ("!hi".equals(message.getContent())) {
-				final MessageChannel channel = message.getChannel().block();
-				channel.createMessage("Hello " + message.getAuthor().get().getUsername()).block();
-			}
-		});
-		
 		client.on(MessageCreateEvent.class).subscribe(event -> {
 			if(event.getMember().isPresent() && event.getMember().get().isBot()) {
 				return;
