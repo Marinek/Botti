@@ -1,5 +1,6 @@
 package botty;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -8,81 +9,61 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import botty.components.DiscordClientComponent;
+import botty.domain.frame.GroupCheckFrame;
+import botty.memory.MessageFrameMemory;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.PresenceUpdateEvent;
-import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.MessageChannel;
+import reactor.util.Logger;
+import reactor.util.Loggers;
 
 @Component
 public class Bot {
+	
+    private static final Logger log = Loggers.getLogger(Bot.class);
 	
 	@Autowired
 	private DiscordClientComponent clientComponent;
 	
 	@Autowired
-	private Map<String, BotSkill> botSkills;
-
+	private MessageFrameMemory<GroupCheckFrame> gcfm;
+	
+	@Autowired
+	private Map<String, Continueable> map;
+	
+	@Autowired
+	private List<BotSkill> botSkills;
+	
 	@PostConstruct
 	public void start() {
 		
 		GatewayDiscordClient client = clientComponent.getClient();
 
 		client.on(PresenceUpdateEvent.class).subscribe(event -> {
-			System.out.println(event);
+			log.debug(String.valueOf(event));
 		});
 
-		client.on(MessageCreateEvent.class).subscribe(event -> {
-			if(event.getMember().isPresent() && event.getMember().get().isBot()) {
-				return;
-			}
-			
-			final Message message = event.getMessage();
-			if ("!creator".equals(message.getContent())) {
-				
-				message.delete().block();
-				message.getAuthor().get().getPrivateChannel().block().createMessage("I was created by the leading software architect **Marinek** to serve him.").block();
-			}
-		});
-
-
-		client.on(MessageCreateEvent.class).subscribe(event -> {
-			if(event.getMember().isPresent() && event.getMember().get().isBot()) {
-				return;
-			}
-			
-			final Message message = event.getMessage();
-			final MessageChannel channel = message.getChannel().block();
-			if ("!roll".equals(message.getContent())) {
-				channel.createMessage(message.getAuthor().get().getUsername() + " send me " + (int)(Math.random() * 100) + "$!").block();
-				message.delete().block();
-			} else if (message.getContent().startsWith("!roll")) {
-				String[] split = message.getContent().split(" ");
-				
-				int number = (int)((split.length -2) * Math.random()) + 1;
-				
-				channel.createMessage(message.getAuthor().get().getUsername() + " I want " + split[number] + " from you!").block();
-			}
-			
-		});
+		for (BotSkill botSkill : botSkills) {
+			log.info("Loaded Skill: " + botSkill.getTrigger());
+		}
 		
-		client.on(MessageCreateEvent.class).subscribe(event -> {
-			if(event.getMember().isPresent() && event.getMember().get().isBot()) {
-				return;
+		client.on(ReactionAddEvent.class).subscribe(event -> {
+			log.info("Reaction added on: " + event.getMessage().block());
+			
+			Message message = event.getMessage().block();
+			
+			GroupCheckFrame frame = gcfm.getFrame(message);
+			
+			if(frame != null) {
+				log.info(frame.toString());
+				
+				if(map.containsKey(frame.getContinueableClazz())) {
+					Continueable bean = map.get(frame.getContinueableClazz());
+					bean.continueSkill(client, event, frame);
+				}
 			}
 			
-			final Message message = event.getMessage();
-			if ("!help".equals(message.getContent())) {
-				
-				final MessageChannel channel = message.getAuthor().get().getPrivateChannel().block();
-				channel.createMessage(
-						"Hi, my name is Lord Gaben! Send me commands and I will see to help you...\n" +
-						"`!hi - I will extend my greetings to you.`\n" +
-						"`!roll [option1 option2 ...] - I will ask you for a random amount of $$$ or make a decision for you.`\n" +
-						"`!creator - Lord Gaben will reveal his creator.`\n"
-						
-						).block();
-			}
 		});
 
 		client.onDisconnect().block();
