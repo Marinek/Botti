@@ -34,9 +34,14 @@ dependencies {
     
      implementation 'com.discord4j:discord4j-core:3.1.0'
 
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-keyvalue
+	implementation group: 'org.springframework.data', name: 'spring-data-keyvalue'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
 	// Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+    
+    
 }
 
 bootJar {

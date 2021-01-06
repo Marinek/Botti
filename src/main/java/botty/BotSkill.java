@@ -55,7 +55,7 @@ public abstract class BotSkill {
 
 	/**
 	 * 
-	 * @return The name of the Bot; Which is the same as his trigger. 
+	 * @return The name of the skill; which is the same as his trigger. 
 	 */
 	public abstract String getTrigger();
 
