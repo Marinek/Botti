@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 import botty.BotSkill;
 import botty.SkillException;
-import botty.memory.ChannelMemory;
-import botty.memory.ChannelMemoryRepository;
+import botty.memory.BotChannel;
+import botty.memory.BotChannelRepository;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.PermissionOverwrite;
@@ -16,9 +16,13 @@ import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.reaction.ReactionEmoji;
 import discord4j.rest.util.Permission;
 import discord4j.rest.util.PermissionSet;
+import reactor.util.Logger;
+import reactor.util.Loggers;
 
 @Component
 public class CreateChannelSkill extends BotSkill {
+	
+	private static final Logger log = Loggers.getLogger(CreateChannelSkill.class);
 
 	@Autowired
 	private ChannelManagement channelManagement;
@@ -27,13 +31,13 @@ public class CreateChannelSkill extends BotSkill {
 	private JoinChannelReaction jcr;
 	
 	@Autowired
-	private ChannelMemoryRepository channelMemoryRepo;
+	private BotChannelRepository channelMemoryRepo;
 	
 	@Override
 	protected void executeSkill(GatewayDiscordClient client, MessageCreateEvent event) {
 		String content = event.getMessage().getContent();
 		
-		ChannelMemory channelMemory = new ChannelMemory();
+		BotChannel channelMemory = new BotChannel();
 		
 		String[] tokens = content.split(" ");
 		
@@ -80,6 +84,7 @@ public class CreateChannelSkill extends BotSkill {
 		}).block();
 		
 		channelMemory.setChannelId(newChannel.getId());
+		channelMemory.setOwnerId(event.getMember().get().getId());
 		
 		newChannel.addRoleOverwrite(channelRole.getId(), PermissionOverwrite.forRole(channelRole.getId(), PermissionSet.of(
 					Permission.READ_MESSAGE_HISTORY,
@@ -90,7 +95,11 @@ public class CreateChannelSkill extends BotSkill {
 					Permission.ADD_REACTIONS 
 				), PermissionSet.none())).block();
 		
-		channelMemoryRepo.save(channelMemory);
+		BotChannel save = channelMemoryRepo.save(channelMemory);
+		
+		event.getMessage().delete().block();
+		
+		log.info(save.toString());
 	}
 
 	@Override

@@ -33,9 +33,9 @@ dependencies {
     implementation 'com.google.guava:guava:28.0-jre'
     
      implementation 'com.discord4j:discord4j-core:3.1.0'
-
-    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-keyvalue
-	implementation group: 'org.springframework.data', name: 'spring-data-keyvalue'
+     
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 	// Use JUnit test framework

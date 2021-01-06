@@ -6,9 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import botty.components.DiscordClientComponent;
+import botty.memory.BotChannel;
+import botty.memory.BotChannelRepository;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
@@ -19,6 +23,9 @@ public class JoinChannelReaction {
 	
 	@Autowired
 	private DiscordClientComponent clientComponent;
+	
+	@Autowired
+	private BotChannelRepository bcr;
 
 	@PostConstruct
 	protected void init() {
@@ -26,19 +33,28 @@ public class JoinChannelReaction {
 		GatewayDiscordClient client = clientComponent.getClient();
 		
 		client.on(ReactionAddEvent.class).subscribe(event -> {
-			log.info("Reaction triggert on: " + event.getMessage().block());
+			Message message = event.getMessage().block();
+			log.debug("Reaction triggert on: " + message);
 			
 			boolean isBookReaction = event.getEmoji().asUnicodeEmoji().get().getRaw().equals("\uD83D\uDCD2");
 			
-			log.info(isBookReaction + "");
+			if(isBookReaction && !event.getMember().get().isBot()) {
+				BotChannel findByMessageId = bcr.findByMessageId(message.getId().asLong());
+				event.getMember().get().addRole(findByMessageId.getRoleId()).block();
+			}
 		});
 		
 		client.on(ReactionRemoveEvent.class).subscribe(event -> {
-			log.info("Reaction triggert on: " + event.getMessage().block());
+			Message message = event.getMessage().block();
+			log.debug("Reaction triggert on: " + message);
 			
 			boolean isBookReaction = event.getEmoji().asUnicodeEmoji().get().getRaw().equals("\uD83D\uDCD2");
 			
-			log.info(isBookReaction + "");
+			if(isBookReaction && !event.getUser().block().isBot()) {
+				BotChannel findByMessageId = bcr.findByMessageId(message.getId().asLong());
+				Member memberById = event.getClient().getMemberById(event.getGuildId().get(), event.getUserId()).block();
+				memberById.removeRole(findByMessageId.getRoleId()).block();
+			}
 		});
 	}
 }
