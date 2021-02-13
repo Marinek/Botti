@@ -91,7 +91,6 @@ public class JingleSkill extends BotSkill {
 			// If audio was provided, flip from write-mode to read-mode
 			if (didProvide) {
 				getBuffer().flip();
-				System.out.println("JingleSkill.LavaPlayerAudioProvider.provide()" + didProvide);
 			}
 			return didProvide;
 		}
