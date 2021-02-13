@@ -18,6 +18,10 @@ import reactor.util.Loggers;
 @Component
 public class ChannelManagement extends BotSkill {
 	private static final Logger log = Loggers.getLogger(GroupCheckSkill.class);
+	
+	
+	public ChannelManagement() {
+	}
 
 	@Override
 	protected void executeSkill(GatewayDiscordClient client, MessageCreateEvent event) {

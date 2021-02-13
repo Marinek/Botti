@@ -40,7 +40,7 @@ public class HelpSkill extends BotSkill {
 		StringBuilder sb = new StringBuilder();
 
 		for (BotSkill botSkill : botskills) {
-			if(!StringUtils.isEmpty(botSkill.getHelp())) {
+			if(!StringUtils.hasText(botSkill.getHelp())) {
 				sb.append("`" + botSkill.getTrigger() + " - " + botSkill.getHelp() + "`\n");
 			}
 		}
