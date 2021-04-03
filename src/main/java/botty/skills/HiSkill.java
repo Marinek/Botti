@@ -26,6 +26,6 @@ public class HiSkill extends BotSkill {
 
 	@Override
 	public String getHelp() {
-		return "I will extend my greetings to you.";
+		return "Botti will extend his greetings to you.";
 	}
 }

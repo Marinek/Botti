@@ -113,7 +113,10 @@ public class GroupCheckSkill extends BotSkill implements Continueable {
 		return "!groupcheck";
 	}
 
-	
+	@Override
+	public String getHelp() {
+		return "[amount] Botti will find the chosen ones for you.";
+	}
 
 
 }

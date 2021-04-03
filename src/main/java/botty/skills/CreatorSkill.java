@@ -24,7 +24,7 @@ public class CreatorSkill extends BotSkill {
 
 	@Override
 	public String getHelp() {
-		return "Lord Gaben will reveal his creator.";
+		return "Botti will reveal his creator.";
 	}
 
 

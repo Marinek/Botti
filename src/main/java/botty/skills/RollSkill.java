@@ -24,7 +24,7 @@ public class RollSkill extends BotSkill {
 
 			int number = (int)((split.length -2) * Math.random()) + 1;
 
-			channel.createMessage(message.getAuthor().get().getUsername() + " I want " + split[number] + " from you!").block();
+			channel.createMessage(message.getAuthor().get().getUsername() + " I choose " + split[number] + "!").block();
 		}
 	}
 
@@ -35,7 +35,7 @@ public class RollSkill extends BotSkill {
 
 	@Override
 	public String getHelp() {
-		return "[option1 option2 ...] - I will ask you for a random amount of $$$ or make a decision for you.";
+		return "[option1 option2 ...] - Botti will roll a number or choose from one of the provided options.";
 	}
 
 }

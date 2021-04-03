@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import botty.components.DiscordClientComponent;
 import botty.domain.frame.GroupCheckFrame;
+import botty.memory.BotChannelRepository;
 import botty.memory.MessageFrameMemory;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.PresenceUpdateEvent;
@@ -34,6 +35,9 @@ public class Bot {
 	
 	@Autowired
 	private List<BotSkill> botSkills;
+	
+	@Autowired
+	private BotChannelRepository cmr;
 	
 	@PostConstruct
 	public void start() {
@@ -65,6 +69,8 @@ public class Bot {
 			}
 			
 		});
+		
+		log.info(cmr.findAll().toString());
 
 		client.onDisconnect().block();
 	}

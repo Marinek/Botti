@@ -1,2 +1,2 @@
-# LordGaben
+# Botti
 A private Discord Bot
