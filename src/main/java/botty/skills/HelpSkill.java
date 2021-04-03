@@ -30,9 +30,11 @@ public class HelpSkill extends BotSkill {
 		String helpContent = getHelpContent();
 
 		channel.createMessage(
-				"Hi, my name is Lord Gaben! Send me commands and I will see to help you...\n" +
+				"Hi, my name is Botti! Send me commands and I will see to help you...\n" +
 						helpContent
 				).block();
+		
+		String s = String.valueOf(223);
 
 	}
 
@@ -40,7 +42,7 @@ public class HelpSkill extends BotSkill {
 		StringBuilder sb = new StringBuilder();
 
 		for (BotSkill botSkill : botskills) {
-			if(!StringUtils.hasText(botSkill.getHelp())) {
+			if(StringUtils.hasText(botSkill.getHelp())) {
 				sb.append("`" + botSkill.getTrigger() + " - " + botSkill.getHelp() + "`\n");
 			}
 		}

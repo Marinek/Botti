@@ -28,9 +28,6 @@ public class CreateChannelSkill extends BotSkill {
 	private ChannelManagement channelManagement;
 	
 	@Autowired
-	private JoinChannelReaction jcr;
-	
-	@Autowired
 	private BotChannelRepository channelMemoryRepo;
 	
 	@Override
